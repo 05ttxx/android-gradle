@@ -1,0 +1,8 @@
+//#rootProject.name = 'MyProjects'
+
+// 
+// 所有子项目
+// 
+// include 'deps:jfinal-fork'
+// include 'deps:anbi-core'
+// include 'projects:leap'
