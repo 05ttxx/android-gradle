@@ -1,9 +1,14 @@
-apply plugin: 'java'
+//android 项目
+apply plugin: 'android'
+
+//intellij idea 插件 (执行: gradle diea 命令生成idea项目)
 apply plugin: 'idea'
 
+//eclipse 插件 (执行:gradle eclipse 命令生成eclipse项目)
+apply plugin: 'eclipse'
+
 // 用于检测依赖的包是否有更新
-apply plugin: 'versions'    
-// apply plugin: "sonar-runner"
+apply plugin: 'versions'
 
 // 引入jar包定义
 // 这个文件中定义的jar包可以直接在子项目中使用，不需要再次使用 apply from 这个语句
@@ -24,21 +29,11 @@ apply from: 'dependencyDefinitions.gradle'
 // 
 buildscript {
     repositories {
-
         mavenCentral()
-	maven{ url 'http://dl.bintray.com/cjstehno/public' }
-	maven{ url 'http://maven2.javacv.googlecode.com/git/' }
-        // mavenLocal()
     }
     dependencies {
-        def templatesVersion = project.hasProperty('gradle.templates.ver') ? project.getProperty('gradle.templates.ver') : project.version
-        classpath "gradle-templates:gradle-templates:${templatesVersion}"
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.4'
+        classpath 'com.android.tools.build:gradle:0.8.+'
     }
-}
-// Check to make sure templates.TemplatesPlugin isn't already added.
-if (!project.plugins.findPlugin(templates.TemplatesPlugin)) {
-    project.apply(plugin: templates.TemplatesPlugin)
 }
 // ======================================================================================
 
@@ -51,21 +46,10 @@ def defaultProperty(propertyName, defaultValue) {
 
 //ext.profile = project['profile']
 
-/**
- * 根据命令行输入的参数来判断profile，两种类别：dev（开发环境）、prod（生产环境）
- * 不提供参数表示为dev
- * 
- * 示例：gradle war -Pprofile=prod
- *
- * TODO: 已经没用了，哪天删掉
- */
-def getProfile() {
-    return defaultProperty('profile', 'dev')
-}
 
 // 所有子项目的通用配置
 subprojects { 
-    apply plugin: 'java'
+    apply plugin: 'android'
     apply plugin: 'eclipse'
     apply plugin: 'idea'
 
@@ -87,46 +71,9 @@ subprojects {
         }
     }
 
-
-    configurations {
-        // 
-        // 所有需要忽略的包定义在此
-        // 
-        all*.exclude group: 'commons-httpclient'
-        all*.exclude group: 'commons-logging'
-        all*.exclude group: 'commons-beanutils', module: 'commons-beanutils'
-    }
-
+    //通用依赖
     dependencies {
-        
-        //
-        // 通用依赖
-        // 
-        compile (
-            libraries.'logback-classic',
-            libraries.'jcl-over-slf4j',
-            libraries.'log4j-over-slf4j'
-        )
 
-        ext.jarTree = fileTree(dir: 'libs', include: '**/*.jar')
-        ext.rootProjectLibs = new File(rootProject.rootDir, 'libs').getAbsolutePath()
-        ext.jarTree += fileTree(dir: rootProjectLibs, include: '**/*.jar')
-
-        compile jarTree
-
-        // 
-        // 测试依赖
-        // 
-        testCompile (
-            libraries.'junit',
-            libraries.'spring-test'
-        )
-    }
-
-    // 显示当前项目下所有用于 compile 的 jar.
-    // 
-    task listJars(description: 'Display all compile jars.') << {
-        configurations.compile.each { File file -> println file.name }
     }
 
 }
